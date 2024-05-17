@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.todo.mapper.ToDoMapper">
+
+    <sql id="todoColumns">
+        idx, item, status
+    </sql>
+
+    <select id="selectToDoList" resultType="ToDoDTO">
+        SELECT <include refid="todoColumns" />
+        FROM todo
+        order by idx desc
+    </select>
+
+    <insert id="insertToDoList" parameterType="ToDoDTO">
+        INSERT INTO todo (
+        <include refid="todoColumns"/>
+        ) VALUES (
+        seq_idx_no.next-val
+        , #{item}
+        , 'N'
+        )
+    </insert>
+
+    <update id="updateToDoList" parameterType="ToDoDTO">
+        UPDATE todo
+        SET
+        status = 'Y'
+        WHERE idx = #{idx}
+    </update>
+
+    <delete id="deleteToDoList" parameterType="long">
+        DELETE todo
+        where idx = #{idx}
+    </delete>
+
+</mapper>

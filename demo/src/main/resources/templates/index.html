@@ -1,50 +1,103 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://thymeleaf.org">
 <head>
-    <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular.min.js"></script>
-    <link rel = "stylesheet"
-          href = "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-          integrity = "sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-          crossorigin="anonymous"
-          />
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular.min.js"></script>
+    <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+            integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+            crossorigin="anonymous"
+    />
 
     <style>
         .app-container {
-            height : 100vh;
-            width : 100%;
-         }
-         .complete {
+            height: 100vh;
+            width: 100%;
+        }
+        .complete {
             text-decoration: line-through;
-         }
-
+        }
     </style>
 </head>
-<meta charset="UTF-8">
-<title>todo-list</title>
 <body>
-<div class = "app-container d-flex align-items-center justify-content-center flex-column" ng-app = "myApp" ng-controller="myController">
+<div
+        class="app-container d-flex align-items-center justify-content-center flex-column"
+        ng-app="myApp"
+        ng-controller="myController"
+>
     <h3>Todo App</h3>
-    <div class = "d-flex align-items-center mb-3">
-        <div class="form-group mr-3 mb-0">
-
-        <input
-
-            type = "text"
-            class = "form-control"
-            id="formGroupExampleInput"
-            placeholder="Enter a task here"
-            />
-        </div>
-        <button
-            type="button"
-            class="btn btn-primary mr-3"
-            >
-            save
-        </button>
+    <div class="d-flex align-items-center mb-3" style="display: inline-block;">
+        <form class="form-group mr-3 mb-0" th:action="@{/todo/register.do}" th:object="${todo}" method="post">
+            <div style="display: inline-block">
+                <input th:field="*{item}" type="text" class="form-control" style="vertical-align:middle" placeholder="할 일을 적어주세요"/>
+            </div>
+            <div style="display: inline-block">
+                <button type="submit" class="btn btn-primary mr-3">Save</button>
+            </div>
+        </form>
     </div>
-    <div class="table-wrapper">
 
+    <div class="table-wrapper" th:object="${todo}" method="post">
+        <table class="table table-hover table-bordered">
+            <thead>
+            <tr>
+                <th>No.</th>
+                <th>Todo item</th>
+                <th>status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${not #lists.isEmpty(toDoList)}" th:each="todo,index : ${toDoList}">
+                <td th:text="${index.index}" th:class="${todo.status == 'Y'} ? 'complete' : ''"></td> <!-- no-->
+                <td th:text="${todo.item}" th:class="${todo.status == 'Y'} ? 'complete' : ''"></td> <!--item-->
+                <td th:text="${todo.status}"></td> <!-- status-->
+                <td>
+                    <button type="button" class="btn btn-danger" onclick="deleteToDoList([[${todo.idx}]], [[${index.index}]])">Delete</button>
+                    <button type="button" class="btn btn-success" onclick="updateToDoList([[${todo.idx}]], [[${index.index}]])">Finished</button>
+                </td> <!-- action-->
+            </tr>
+            </tbody>
+        </table>
     </div>
 </div>
-</body>`
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    function updateToDoList(idx, index) {
+        if (confirm(index + "번 할 일을 하셨나요?")) {
+            var uri = /*[[ @{/todo/update/do} ]]*/ null;
+            var formData = new FormData();
+            formData.append("idx", idx);
+
+            fetch(uri, {
+                method: "POST",
+                body: formData
+            }).then(function(response) {
+                // Handle response
+            }).catch(function(error) {
+                // Handle error
+            });
+        }
+    }
+
+    function deleteToDoList(idx, index) {
+        if (confirm(index + "번 할 일을 삭제할까요?")) {
+            var uri = /*[[ @{/todo/delete/do} ]]*/ null;
+            var formData = new FormData();
+            formData.append("idx", idx);
+
+            fetch(uri, {
+                method: "POST",
+                body: formData
+            }).then(function(response) {
+                // Handle response
+            }).catch(function(error) {
+                // Handle error
+            });
+        }
+    }
+    /*]]>*/
+</script>
+</body>
 </html>
